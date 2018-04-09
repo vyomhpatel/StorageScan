@@ -1,5 +1,6 @@
 package b12app.vyom.com.storagescan;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -14,7 +15,9 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,8 +26,8 @@ import java.util.Set;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "total" ;
-    Button btnStart, btnStop;
-    ListView listView;
+    Button btnStart, btnStop, btnExtension;
+    ListView listView, listVEx;
     List<String> file_list;
     List<Long> file_size;
     List<String> file_extension;
@@ -33,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     long average_size = 0;
     TextView tvAvg;
     Set<String> hsVal;
+    ArrayList<String> extension_repeatedList;
+    ArrayList<Integer> extension_repeatedCount;
     TextView tvExtension;
     HashMap<String, Integer> hmExtension;
     public static final String DOT_SEPARATOR = ".";
@@ -61,11 +66,18 @@ public class MainActivity extends AppCompatActivity {
         listView  = findViewById(R.id.listView);
         btnStart = findViewById(R.id.btnStart);
         btnStop = findViewById(R.id.btnStop);
+        btnExtension = findViewById(R.id.btnExtension);
         tvAvg = findViewById(R.id.tvAvg);
-        tvExtension= findViewById(R.id.tvExtension);
+        tvExtension = findViewById(R.id.tvExtension);
         file_list = new ArrayList<>();
         file_size = new ArrayList<>();
         file_extension = new ArrayList<>();
+
+        btnExtension.setEnabled(false);
+
+        extension_repeatedList = new ArrayList<>();
+        extension_repeatedCount = new ArrayList<>();
+
         hmExtension= new HashMap<>();
         myAsyncTask = new MyAsyncTask();
 
@@ -73,8 +85,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 myAsyncTask.execute();
+                btnExtension.setEnabled(true);
             }
         });
+
+        btnExtension.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ExtensionFilter.class);
+                intent.putStringArrayListExtra("extension",extension_repeatedList);
+                intent.putIntegerArrayListExtra("extension_count",extension_repeatedCount);
+                startActivity(intent);
+            }
+        });
+
+        btnStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                myAsyncTask.cancel(true);
+            }
+        });
+
 
 
     }
@@ -110,12 +141,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-//        for(int i=0; i<file_list.size()-1;i++){
-//            total_size = total_size+file_size.get(i);
-//
-//
-//
-//        }
 
 
 
@@ -142,28 +167,41 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-            average_size = total_size/file_list.size();
-            Log.i(TAG, "total: "+average_size);
-            tvAvg.setText("Average Size:"+String.valueOf(average_size));
-            Log.i(TAG, "File extensions: "+file_extension);
-            ListAdapter adapter = new NameSizeAdapter(file_list,file_size,MainActivity.this);
-            listView.setAdapter(adapter);
+            if(isCancelled()){
 
-            for(int x= 0; x<file_extension.size();x++){
-
-               if(hmExtension.containsKey(file_extension.get(x))){
-                   hmExtension.put(file_extension.get(x), hmExtension.get(file_extension.get(x))+1);
-               } else{
-                   hmExtension.put(file_extension.get(x), 1);
-               }
             }
+             else {
+                average_size = total_size / file_list.size();
+                Log.i(TAG, "total: " + average_size);
+                tvAvg.setText("Average Size:" + String.valueOf(average_size));
+                Log.i(TAG, "File extensions: " + file_extension);
+                ListAdapter adapter = new NameSizeAdapter(file_list, file_size, MainActivity.this);
+                listView.setAdapter(adapter);
 
-            Log.i(TAG, "hashmap:"+hmExtension.entrySet());
-            hsVal = hmExtension.keySet();
-            for(String extension_key: hsVal){
-                if(hmExtension.get(extension_key)>1){
-                    tvExtension.append("Extension: "+extension_key +" Count: "+hmExtension.get(extension_key));
+                for (int x = 0; x < file_extension.size(); x++) {
+
+                    if (hmExtension.containsKey(file_extension.get(x))) {
+                        hmExtension.put(file_extension.get(x), hmExtension.get(file_extension.get(x)) + 1);
+                    } else {
+                        hmExtension.put(file_extension.get(x), 1);
+                    }
                 }
+
+                Log.i(TAG, "hashmap:" + hmExtension.entrySet());
+                hsVal = hmExtension.keySet();
+                for (String extension_key : hsVal) {
+                    if (hmExtension.get(extension_key) > 1) {
+
+                        extension_repeatedList.add(extension_key);
+
+                        extension_repeatedCount.add(hmExtension.get(extension_key));
+
+                        tvExtension.append("Extension: " + extension_key + " Count: " + hmExtension.get(extension_key) + "\n");
+
+                    }
+                }
+                Log.i(TAG, "extension" + extension_repeatedList);
+
             }
         }
     }
