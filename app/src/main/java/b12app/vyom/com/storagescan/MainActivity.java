@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -15,11 +14,10 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.io.FilenameFilter;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -31,6 +29,9 @@ public class MainActivity extends AppCompatActivity {
     List<String> file_list;
     List<Long> file_size;
     List<String> file_extension;
+    List<String> sorted_file;
+    List<Long> sorted_file_size;
+    List<File> fileList;
     long total_size =0 ;
     MyAsyncTask myAsyncTask;
     long average_size = 0;
@@ -41,6 +42,16 @@ public class MainActivity extends AppCompatActivity {
     TextView tvExtension;
     HashMap<String, Integer> hmExtension;
     public static final String DOT_SEPARATOR = ".";
+
+    public class FileComparator implements Comparator{
+
+        @Override
+        public int compare(Object o1, Object o2) {
+            File f1 = (File) o1;
+            File f2 = (File)o2;
+            return  f1.length()<=f2.length()?1:-1;
+        }
+    }
 
     public static String getFileExtension(File file) {
         if (file == null) {
@@ -70,7 +81,10 @@ public class MainActivity extends AppCompatActivity {
         tvAvg = findViewById(R.id.tvAvg);
         tvExtension = findViewById(R.id.tvExtension);
         file_list = new ArrayList<>();
+        fileList = new ArrayList<>();
         file_size = new ArrayList<>();
+        sorted_file = new ArrayList<String>();
+        sorted_file_size = new ArrayList<Long>();
         file_extension = new ArrayList<>();
 
         btnExtension.setEnabled(false);
@@ -134,12 +148,15 @@ public class MainActivity extends AppCompatActivity {
                 lisFile(file);
             } else{
             file_list.add(String.valueOf(file));
+            fileList.add(file);
             file_size.add(file.length());
             total_size = total_size+ file.length();
             file_extension.add(getFileExtension(file));
 
             }
         }
+
+
 
 
 
@@ -167,15 +184,27 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
+
+
             if(isCancelled()){
 
             }
              else {
+
+                Collections.sort(fileList,new FileComparator());
+                for(int a = 0 ; a<10 && a<fileList.size();a++){
+
+                    sorted_file.add(fileList.get(a).getName());
+                    sorted_file_size.add(fileList.get(a).length());
+
+                }
+
+
                 average_size = total_size / file_list.size();
                 Log.i(TAG, "total: " + average_size);
                 tvAvg.setText("Average Size:" + String.valueOf(average_size));
                 Log.i(TAG, "File extensions: " + file_extension);
-                ListAdapter adapter = new NameSizeAdapter(file_list, file_size, MainActivity.this);
+                ListAdapter adapter = new NameSizeAdapter(sorted_file, sorted_file_size, MainActivity.this);
                 listView.setAdapter(adapter);
 
                 for (int x = 0; x < file_extension.size(); x++) {

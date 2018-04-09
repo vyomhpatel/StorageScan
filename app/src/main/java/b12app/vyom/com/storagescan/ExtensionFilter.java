@@ -21,10 +21,20 @@ public class ExtensionFilter extends AppCompatActivity {
         ListView listExtension = findViewById(R.id.listExtension);
         Intent intent = getIntent();
         List<String> extension_list = intent.getStringArrayListExtra("extension");
+
         List<Integer> ex_count = intent.getIntegerArrayListExtra("extension_count");
-        Log.i(TAG, "count "+ex_count);
-        Log.i(TAG, "count "+extension_list);
-        ExtensionAdapter extensionAdapter = new ExtensionAdapter(extension_list,ex_count,ExtensionFilter.this);
-        listExtension.setAdapter(extensionAdapter);
+
+//        Log.i(TAG, "count "+ex_count_5);
+//        Log.i(TAG, "count "+first_5);
+
+        if(extension_list.size()>=5) {
+            List<String> first_5 = extension_list.subList(0, 4);
+            List<Integer> ex_count_5 = ex_count.subList(0, 4);
+            ExtensionAdapter extensionAdapter = new ExtensionAdapter(first_5, ex_count_5, ExtensionFilter.this);
+            listExtension.setAdapter(extensionAdapter);
+        } else{
+            ExtensionAdapter extensionAdapter = new ExtensionAdapter(extension_list, ex_count, ExtensionFilter.this);
+            listExtension.setAdapter(extensionAdapter);
+        }
     }
 }
