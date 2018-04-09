@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     long average_size = 0;
     TextView tvAvg;
     Set<String> hsVal;
+    List<Map.Entry<String, Integer>> listMap;
     ArrayList<String> extension_repeatedList;
     ArrayList<Integer> extension_repeatedCount;
     TextView tvExtension;
@@ -52,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
             return  f1.length()<=f2.length()?1:-1;
         }
     }
+
+
 
     public static String getFileExtension(File file) {
         if (file == null) {
@@ -86,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
         sorted_file = new ArrayList<String>();
         sorted_file_size = new ArrayList<Long>();
         file_extension = new ArrayList<>();
+
 
         btnExtension.setEnabled(false);
 
@@ -214,12 +219,30 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         hmExtension.put(file_extension.get(x), 1);
                     }
+
+                    listMap = new ArrayList<>(hmExtension.entrySet());
+                    Collections.sort(listMap, (Comparator<? super Map.Entry<String, Integer>>) new Comparator<Map.Entry<String,Integer>>() {
+                        @Override
+                        public int compare(Map.Entry<String, Integer> o1, Map.Entry<String, Integer> o2) {
+                            return o1.getValue()>=o2.getValue()?1:-1;
+                        }
+
+
+
+
+                    });
+
+
+                }
+
                 }
 
                 Log.i(TAG, "hashmap:" + hmExtension.entrySet());
                 hsVal = hmExtension.keySet();
                 for (String extension_key : hsVal) {
                     if (hmExtension.get(extension_key) > 1) {
+
+
 
                         extension_repeatedList.add(extension_key);
 
@@ -237,5 +260,5 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    }
+
 

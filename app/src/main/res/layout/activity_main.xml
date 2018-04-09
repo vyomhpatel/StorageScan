@@ -19,31 +19,27 @@
         android:id="@+id/btnStop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/btnExtension"
+        android:layout_marginEnd="33dp"
         android:text="Stop" />
 
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="350dp"
+        android:layout_margin="5dp"
         android:layout_centerInParent="true"
         android:layout_marginTop="100dp"/>
 
-    <Button
-        android:id="@+id/btnSize"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/btnStart"
-        android:text="Size Filter" />
 
     <Button
         android:id="@+id/btnExtension"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/btnSize"
+        android:layout_marginStart="126dp"
         android:text="Extension" />
 
     <TextView
